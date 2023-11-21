@@ -18,8 +18,10 @@ public:
   class Raw
   {
   public:
+  
     sockaddr_storage storage {}; //!< The wrapped struct itself.
     // NOLINTBEGIN (*-explicit-*)
+
     operator sockaddr*();
     operator const sockaddr*() const;
     // NOLINTEND (*-explicit-*)

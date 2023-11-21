@@ -18,12 +18,17 @@ private:
 
 protected:
   //! Construct via [socket(2)](\ref man2::socket)
+  //dimain表示使用的协议家族:AF_UNIX、AF_INET
+  //type表示数据流的类型:SOCK_STREAM、SOCK_DGRAM
+  //协议族中只有一个类型，可以指定为0
   Socket( int domain, int type, int protocol = 0 );
 
   //! Construct from a file descriptor.
+  //通过socketfd进行构造函数
   Socket( FileDescriptor&& fd, int domain, int type, int protocol = 0 );
 
   //! Wrapper around [getsockopt(2)](\ref man2::getsockopt)
+  //设置或获得sockfd的属性
   template<typename option_type>
   socklen_t getsockopt( int level, int option, option_type& option_value ) const;
 
@@ -35,6 +40,7 @@ protected:
 
 public:
   //! Bind a socket to a specified address with [bind(2)](\ref man2::bind), usually for listen/accept
+  //连接一个地址
   void bind( const Address& address );
 
   //! Bind a socket to a specified device
