@@ -11,6 +11,7 @@ public:
    * The TCPReceiver receives TCPSenderMessages, inserting their payload into the Reassembler
    * at the correct stream index.
    */
+  std::optional<Wrap32> isn_;
   void receive( TCPSenderMessage message, Reassembler& reassembler, Writer& inbound_stream );
 
   /* The TCPReceiver sends TCPReceiverMessages back to the TCPSender. */
