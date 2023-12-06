@@ -3,12 +3,63 @@
 #include "byte_stream.hh"
 #include "tcp_receiver_message.hh"
 #include "tcp_sender_message.hh"
+  class Timer{
+    uint64_t initial_RTO_;
+    uint64_t cur_RTO_;
+    uint64_t time_ms_{0};
+    bool running_{false};
+  public:
+    explicit Timer(uint64_t initial_RTO) : initial_RTO_(initial_RTO), cur_RTO_(initial_RTO){}
+    void start(){
+      time_ms_ = 0;
+      running_ = true;
+    }
+
+    void tick(uint64_t ms_since_last_tick){
+      if(running_){
+        time_ms_ += ms_since_last_tick;
+      }
+    }
+
+    bool isExpired(){
+      return running_ && (time_ms_ >= cur_RTO_);
+    }
+
+    bool isRunning(){
+      return running_;
+    }
+
+    void reset(){
+      cur_RTO_ = initial_RTO_;
+    }
+
+    void double_RTO(){
+      cur_RTO_ *= 2;
+    }
+
+    void stop(){
+      time_ms_ = 0;
+      running_ = false;
+    }
+  };
 
 class TCPSender
 {
   Wrap32 isn_;
   uint64_t initial_RTO_ms_;
+  uint64_t con_retransmissions_cnt{0};
+  uint64_t seq_outstanding{0};
+  uint64_t acked_seqno{0};
+  uint64_t next_seqno{0};
+  uint16_t win_sz{1};
+  bool syn_{false};
+  bool fin_{false};
+  
+  std::deque<TCPSenderMessage> outstanding_segment{};
+  std::deque<TCPSenderMessage> queued_segment{};
 
+
+  Timer timer_{initial_RTO_ms_};
 public:
   /* Construct TCP sender with given default Retransmission Timeout and possible ISN */
   TCPSender( uint64_t initial_RTO_ms, std::optional<Wrap32> fixed_isn );
